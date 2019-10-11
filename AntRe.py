@@ -28,28 +28,19 @@ class Hero(pygame.sprite.Sprite):
 		self.RIGHT, self.LEFT, self.UP, self.DOWN = "right left up down".split()
 		self.game = game
 		self.current_frame = 0
-
 		self.vitessex = 0
 		self.accx = 0
 		self.vitessey = 0
 		self.accy = 0
 		self.coordx = 1920/2
 		self.coordy = 1080/2
-
 		self.centerc = None
 		self.perso_angle = 0
-
-		self.selection = None
-		self.selectionned = False
-
-
 		self.selection = 0, 0
 		self.selectionned = False
-
 		self.xdest = 0
 		self.ydest = 0
-
-
+		self.angledeg = 0
 
 
 	def centerPos(self):
@@ -58,96 +49,60 @@ class Hero(pygame.sprite.Sprite):
 
 	def update(self):
 
-
-		if self.downKeyPressed:
-			self.accx = 0.1 * math.cos((-(self.perso_angle-360)+90) * (3.14/180))
-			self.accy = 0.1 * math.sin((-(self.perso_angle-360)+90) * (3.14/180))
-			mob_hit_list = pygame.sprite.spritecollide(self, self.mobs, False)
-			for mob in mob_hit_list:
-				if mob.hitpoint > 0:
-					self.rect.bottom = mob.rect.top
-			self.image = self.step[self.current_frame]
-					
-		if self.upKeyPressed:
-			self.accx = -0.1 * math.cos((-(self.perso_angle-360)+90) * (3.14/180))
-			self.accy = -0.1 * math.sin((-(self.perso_angle-360)+90) * (3.14/180))
-			mob_hit_list = pygame.sprite.spritecollide(self, self.mobs, False)
-			for mob in mob_hit_list:
-				if mob.hitpoint > 0:
-					self.rect.top = mob.rect.bottom
-			self.image = self.step[self.current_frame]
-
-		if self.leftKeyPressed:
-			self.perso_angle = (self.perso_angle + 1) % 360
-			self.perso_rotated_surf = pygame.transform.rotate(self.image, self.perso_angle)
-			self.rect = self.perso_rotated_surf.get_rect(center=self.centerc)
-
-		if self.rightKeyPressed:
-			self.perso_angle = (self.perso_angle - 1) % 360
-			self.perso_rotated_surf = pygame.transform.rotate(self.image, self.perso_angle)
-			self.rect = self.perso_rotated_surf.get_rect(center=self.centerc)
-
 		xc, yc = self.center
 		xd, yd = self.selection
 
 		if self.leftMousePressed:
 			xm, ym = self.selection
-			if xm >= (xc - 56):
-				if xm < (xc + 56):
-					if ym >= (yc - 75):
-						if ym < (yc + 75):
-							self.selectionned = True
-						else:
-							self.selectionned = False
-					else:
-						self.selectionned = False
-				else:
-					self.selectionned = False
+			if xm >= (xc - 56) and xm < (xc + 56) and ym >= (yc - 75) and ym < (yc + 75):
+				self.selectionned = True
 			else:
 				self.selectionned = False
 
 		if self.rightMousePressed:
-			angled = (math.atan((xd-xc)/(yd-yc)))
 			self.xdest = xd
 			self.ydest = yd
 			if (xd-xc) >= 0:
 				if (yd-yc) == 0:
 					self.vitessey = 0
 					self.vitessex = -5
-					self.perso_angle = 270
 				if (yd-yc) > 0:
-					angledeg = ((angled*180) / 3.1415) + 90 #1
+					angled = (math.atan((xd-xc)/(yd-yc)))
+					self.angledeg = ((angled*180) / 3.1415) + 90 #1
 					if self.selectionned == True:
-						angle2 = (angledeg * 3.1415) / 180
-						self.perso_angle = angledeg
+						angle2 = (self.angledeg * 3.1415) / 180
 						self.vitessex = -5 * math.cos(angle2)
 						self.vitessey = 5 * math.sin(angle2)
 				if (yd-yc) < 0:
-					angledeg = ((angled*180) / 3.1415) + 270 #2
+					angled = (math.atan((xd-xc)/(yd-yc)))
+					self.angledeg = ((angled*180) / 3.1415) + 270 #2
 					if self.selectionned == True:
-						angle2 = (angledeg * 3.1415) / 180
-						self.perso_angle = angledeg
+						angle2 = (self.angledeg * 3.1415) / 180
 						self.vitessex = -5 * math.cos(angle2)
 						self.vitessey = 5 * math.sin(angle2)
 			if (xd-xc) < 0:
 				if (yd-yc) == 0:
 					self.vitessey = 0
 					self.vitessex = 5
-					self.perso_angle = 90
 				if (yd-yc) > 0:
-					angledeg = ((angled*180) / 3.1415) + 90 #3
+					angled = (math.atan((xd-xc)/(yd-yc)))
+					self.angledeg = ((angled*180) / 3.1415) + 90 #3
 					if self.selectionned == True:
-						angle2 = (angledeg * 3.1415) / 180
-						self.perso_angle = angledeg
+						angle2 = (self.angledeg * 3.1415) / 180
 						self.vitessex = -5 * math.cos(angle2)
 						self.vitessey = 5 * math.sin(angle2)
 				if (yd-yc) < 0:
-					angledeg = ((angled*180) / 3.1415) + 270 #4
+					angled = (math.atan((xd-xc)/(yd-yc)))
+					self.angledeg = ((angled*180) / 3.1415) + 270 #4
 					if self.selectionned == True:
-						angle2 = (angledeg * 3.1415) / 180
-						self.perso_angle = angledeg
+						angle2 = (self.angledeg * 3.1415) / 180
 						self.vitessex = -5 * math.cos(angle2)
 						self.vitessey = 5 * math.sin(angle2)
+
+			if self.vitessey != 0 or self.vitessex != 0:			
+				self.perso_angle = (self.angledeg + 90)
+				self.perso_rotated_surf = pygame.transform.rotate(self.image, self.perso_angle)
+				self.rect = self.perso_rotated_surf.get_rect(center=self.centerc)
 
 		if xc >= (self.xdest - 10) and xc <= (self.xdest + 10) and yc >= (self.ydest - 10) and yc <= (self.ydest + 10):
 			self.vitessex = 0
@@ -162,6 +117,9 @@ class Hero(pygame.sprite.Sprite):
 		self.rect.x = self.coordx
 		self.accx = 0
 
+		if self.vitessey != 0 or self.vitessex != 0:
+			self.image = self.step[self.current_frame]
+			self.perso_rotated_surf = pygame.transform.rotate(self.image, self.perso_angle)
 
 		self.vitessey += self.accy
 		self.coordy += self.vitessey
