@@ -3,7 +3,7 @@ from pygame.locals import *
 
 class Hero(pygame.sprite.Sprite):
 	
-	def __init__(self, x, y,DIRECTION,upKeyPressed,downKeyPressed,leftKeyPressed,rightKeyPressed, leftMousePressed, oneKeyPressed, HP, game):
+	def __init__(self, x, y,DIRECTION,upKeyPressed,downKeyPressed,leftKeyPressed,rightKeyPressed, leftMousePressed, rightMousePressed, oneKeyPressed, HP, game):
 		pygame.sprite.Sprite.__init__(self)
 		self.image = self.perso_rotated_surf = pygame.image.load("Sprites/Ant-rot.png").convert_alpha()
 		self.step1 = pygame.image.load("Sprites/Ant-1.png").convert_alpha()
@@ -23,47 +23,34 @@ class Hero(pygame.sprite.Sprite):
 		self.leftKeyPressed = leftKeyPressed
 		self.rightKeyPressed = rightKeyPressed
 		self.leftMousePressed = leftMousePressed
+		self.rightMousePressed = rightMousePressed
 		self.oneKeyPressed = oneKeyPressed
 		self.RIGHT, self.LEFT, self.UP, self.DOWN = "right left up down".split()
-		self.mobs = None
-		self.ticker_weapon = 0
-		self.ticker_missileb = 0
 		self.game = game
 		self.current_frame = 0
 
 		self.vitessex = 0
 		self.accx = 0
-
-
 		self.vitessey = 0
 		self.accy = 0
-
-		self.coordx = 300
-		self.coordy = 300
+		self.coordx = 1920/2
+		self.coordy = 1080/2
 
 		self.centerc = None
-
-		self.coordpx = 660
-		self.coordpy = 540
-		self.vitessepx = 0
-		self.vitessepy = 8.165
-		self.accpx = 0
-		self.accpy = 0
-
-		self.ticker_bullet = 6
-		self.ticker_missilea = 50
-		self.bullet_direction = 0,0
-		self.bullet = None
-		self.speed_bullet = 30
 		self.perso_angle = 0
 
-		self.speed_missile = 15
+		self.selection = None
+		self.selectionned = False
+
+
+		self.selection = 0, 0
+		self.selectionned = False
 
 
 
 
 	def centerPos(self):
-		self.center = (self.rect.x + 83, self.rect.y + 83)
+		self.center = (self.rect.x + 56, self.rect.y + 75)
 		self.centerc = (self.coordx, self.coordy)
 
 	def update(self):
@@ -97,9 +84,70 @@ class Hero(pygame.sprite.Sprite):
 			self.perso_rotated_surf = pygame.transform.rotate(self.image, self.perso_angle)
 			self.rect = self.perso_rotated_surf.get_rect(center=self.centerc)
 
+		xc, yc = self.center
+		xd, yd = self.selection
 
-		self.ticker_weapon += 1
-		self.ticker_missileb += 1
+		if self.leftMousePressed:
+			xm, ym = self.selection
+			if xm >= (xc - 56):
+				if xm < (xc + 56):
+					if ym >= (yc - 75):
+						if ym < (yc + 75):
+							self.selectionned = True
+						else:
+							self.selectionned = False
+					else:
+						self.selectionned = False
+				else:
+					self.selectionned = False
+			else:
+				self.selectionned = False
+
+		if self.rightMousePressed:
+			angled = (math.atan((xd-xc)/(yd-yc)))
+			if (xd-xc) >= 0:
+				if (yd-yc) == 0:
+					self.vitessey = 0
+					self.vitessex = -5
+					self.perso_angle = 270
+				if (yd-yc) > 0:
+					angledeg = ((angled*180) / 3.1415) + 90 #1
+					if self.selectionned == True:
+						angle2 = (angledeg * 3.1415) / 180
+						self.perso_angle = angledeg
+						self.vitessex = -5 * math.cos(angle2)
+						self.vitessey = 5 * math.sin(angle2)
+				if (yd-yc) < 0:
+					angledeg = ((angled*180) / 3.1415) + 270 #2
+					if self.selectionned == True:
+						angle2 = (angledeg * 3.1415) / 180
+						self.perso_angle = angledeg
+						self.vitessex = -5 * math.cos(angle2)
+						self.vitessey = 5 * math.sin(angle2)
+			if (xd-xc) < 0:
+				if (yd-yc) == 0:
+					self.vitessey = 0
+					self.vitessex = 5
+					self.perso_angle = 90
+				if (yd-yc) > 0:
+					angledeg = ((angled*180) / 3.1415) + 90 #3
+					if self.selectionned == True:
+						angle2 = (angledeg * 3.1415) / 180
+						self.perso_angle = angledeg
+						self.vitessex = -5 * math.cos(angle2)
+						self.vitessey = 5 * math.sin(angle2)
+				if (yd-yc) < 0:
+					angledeg = ((angled*180) / 3.1415) + 270 #4
+					if self.selectionned == True:
+						angle2 = (angledeg * 3.1415) / 180
+						self.perso_angle = angledeg
+						self.vitessex = -5 * math.cos(angle2)
+						self.vitessey = 5 * math.sin(angle2)
+
+		if xc >= (xd - 10) and xc <= (xd + 10) and yc >= (yd - 10) and yc <= (yd + 10):
+			self.vitessex = 0
+			self.vitessey = 0
+
 		self.ticker += 1
 		if self.ticker % 8 == 0:
 			self.current_frame = (self.current_frame + 1) % 4
@@ -140,7 +188,7 @@ class GameMain():
 		self.width, self.height = width, height
 		pygame.display.set_caption("Space War !")
 		self.screen = pygame.display.set_mode((self.width, self.height), pygame.FULLSCREEN)
-		self.hero = Hero(100,200,"UP",False,False,False,False,False,False,20, self)
+		self.hero = Hero(100,200,"UP",False,False,False,False,False,False,False,20, self)
 		self.bullet = pygame.sprite.Group()	
 		self.all_sprite_list = pygame.sprite.Group()
 		self.all_sprite_list.add(self.hero)
@@ -263,14 +311,19 @@ class GameMain():
 			if event.type == MOUSEBUTTONDOWN :
 				if pygame.mouse.get_pressed() == (1, 0, 0):
 					self.hero.leftMousePressed = True
-			
+
+				if pygame.mouse.get_pressed() == (0, 0, 1):
+					self.hero.rightMousePressed = True
+
 			elif event.type == MOUSEMOTION :
-				self.hero.bullet_direction = event.pos
+				self.hero.selection = event.pos
 
 			elif event.type == MOUSEBUTTONUP :
 				if pygame.mouse.get_pressed() == (0, 0, 0):
 					self.hero.leftMousePressed = False
 
+				if pygame.mouse.get_pressed() == (0, 0, 0):
+					self.hero.rightMousePressed = False
 
 if __name__ == "__main__":
 	game = GameMain()
