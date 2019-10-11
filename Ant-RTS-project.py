@@ -86,10 +86,10 @@ class Room(object):
 
 class GameMain():
 	done = False
+	
 	def __init__(self,width = 1920, height = 1080):
 		pygame.mixer.pre_init(44100, -16, 2, 2048)
 		pygame.init()
-
 		self.arial_font = pygame.font.SysFont("arial", 30)
 		self.width, self.height = width, height
 		pygame.display.set_caption("Ants")
@@ -107,24 +107,22 @@ class GameMain():
 	def main_loop(self):
 		while not self.done:
 			if self.current_screen == "game":
-				if self.hero_isdead :
-					self.handle_events_title()
-					self.draw_title()
-				else:
 					self.handle_events()
+					self.hero.centerPos()
 					self.draw()
 					self.all_sprite_list.update()
-					self.hero.nearestMob()
 					self.hero.mobs.update()
 					self.current_room.bullet.update()
 					self.current_room.enemy_bullet.update()
 					self.change_room()
-					self.killed()
+					self.current_room.planet.update()
 			elif self.current_screen == "title":
 				self.handle_events_title()
 				self.draw_title()
 			self.clock.tick(60)
+		
 		pygame.quit()
+
 	def draw_title(self):
 		self.screen.fill(Color("Black"))
 		credit = pygame.image.load("backgrounds/background_menu.png")
@@ -224,8 +222,7 @@ class GameMain():
 			elif event.type == MOUSEBUTTONUP :
 				if pygame.mouse.get_pressed() == (0, 0, 0):
 					self.hero.leftMousePressed = False
-
-
+		
 if __name__ == "__main__":
 	game = GameMain()
 	game.main_loop()
