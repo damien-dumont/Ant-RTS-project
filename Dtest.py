@@ -3,7 +3,7 @@ from pygame.locals import *
 
 class Hero(pygame.sprite.Sprite):
     
-    def __init__(self, x, y,DIRECTION,upKeyPressed,downKeyPressed,leftKeyPressed,rightKeyPressed, leftMousePressed, rightMousePressed, oneKeyPressed, HP, game):
+    def __init__(self, x, y,DIRECTION,upKeyPressed,downKeyPressed,leftKeyPressed,rightKeyPressed, leftMousePressed, rightMousePressed, oneKeyPressed, coordx, coordy, HP, game):
         pygame.sprite.Sprite.__init__(self)
         self.image = self.perso_rotated_surf = pygame.image.load("Sprites/Ant-rot.png").convert_alpha()
         self.step1 = pygame.image.load("Sprites/Ant-1.png").convert_alpha()
@@ -17,6 +17,7 @@ class Hero(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.center = None
+        self.mobs= None
         self.DIRECTION = DIRECTION
         self.upKeyPressed = upKeyPressed
         self.downKeyPressed = downKeyPressed
@@ -32,8 +33,8 @@ class Hero(pygame.sprite.Sprite):
         self.accx = 0
         self.vitessey = 0
         self.accy = 0
-        self.coordx = 1920/2
-        self.coordy = 1080/2
+        self.coordx = coordx
+        self.coordy = coordy
         self.centerc = None
         self.perso_angle = 0
         self.selection = 0, 0
@@ -131,14 +132,15 @@ class Hero(pygame.sprite.Sprite):
 class Room(object):
     wall_list = None
     def __init__(self):
-        self.bullet = pygame.sprite.Group()
+        self.mob_list = pygame.sprite.Group()
 
 class Room1(Room):
     def __init__(self):
         Room.__init__(self)
         self.background = pygame.image.load("room/room1.png").convert_alpha()
-        mobs = []
-
+        mobs = [Hero(100,200,"UP",False,False,False,False,False,False,False,360,950,20, self)]
+        for mob in mobs:
+            self.mob_list.add(mob)
 class GameMain():
     done = False
     
@@ -150,7 +152,7 @@ class GameMain():
         self.width, self.height = width, height
         pygame.display.set_caption("Ants")
         self.screen = pygame.display.set_mode((self.width, self.height), pygame.FULLSCREEN)
-        self.hero = Hero(100,200,"UP",False,False,False,False,False,False,False,20, self)
+        self.hero = Hero(100,200,"UP",False,False,False,False,False,False,False,960,450,20, self)
         self.all_sprite_list = pygame.sprite.Group()
         self.all_sprite_list.add(self.hero)
         self.rooms = [[Room1()]]
@@ -159,6 +161,7 @@ class GameMain():
         self.current_y = 0
         self.current_screen = "title"
         self.current_room = self.rooms[self.current_y][self.current_x]
+        self.hero.mobs = self.rooms[self.current_y][self.current_x].mob_list
         
     def main_loop(self):
         while not self.done:
@@ -168,7 +171,7 @@ class GameMain():
                     self.draw()
                     self.all_sprite_list.update()
                     self.change_room()
-                    self.current_room.bullet.update()
+                    self.hero.mobs.update()
             elif self.current_screen == "title":
                 self.handle_events_title()
                 self.draw_title()
@@ -199,24 +202,26 @@ class GameMain():
         self.screen.blit(background,(0,0))
         self.screen.blit(self.hero.perso_rotated_surf, self.hero.rect)            
         pygame.display.flip()
-
+        for mob in self.current_room.mob_list :
+            x = mob.rect.x - 56
+            y = mob.rect.y - 56
     def change_room(self):
         if self.hero.coordx > 1921 :
             self.hero.coordx = 0
             self.current_room = self.rooms[self.current_y][self.current_x]
-
+            self.hero.mobs = self.rooms[self.current_y][self.current_x].mob_list
         elif self.hero.coordx < 0 :
             self.hero.coordx = 1919
             self.current_room = self.rooms[self.current_y][self.current_x]
-
+            self.hero.mobs = self.rooms[self.current_y][self.current_x].mob_list
         elif self.hero.coordy < 0 :
             self.hero.coordy = 1079
             self.current_room = self.rooms[self.current_y][self.current_x]
-
+            self.hero.mobs = self.rooms[self.current_y][self.current_x].mob_list
         elif self.hero.coordy > 1080 :
             self.hero.coordy = 0
             self.current_room = self.rooms[self.current_y][self.current_x]
-
+            self.hero.mobs = self.rooms[self.current_y][self.current_x].mob_list
     def handle_events(self):
         events = pygame.event.get()
         for event in events:
