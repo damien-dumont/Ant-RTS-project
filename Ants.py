@@ -10,8 +10,13 @@ class Hero(pygame.sprite.Sprite):
         self.step2 = pygame.image.load("Sprites/Ant-mid.png").convert_alpha()
         self.step3 = pygame.image.load("Sprites/Ant-3.png").convert_alpha()
         self.step4 = pygame.image.load("Sprites/Ant-mid.png").convert_alpha()
+        self.stepsel1 = pygame.image.load("Sprites/Ant-1-sel.png").convert_alpha()
+        self.stepsel2 = pygame.image.load("Sprites/Ant-mid-sel.png").convert_alpha()
+        self.stepsel3 = pygame.image.load("Sprites/Ant-3-sel.png").convert_alpha()
+        self.stepsel4 = pygame.image.load("Sprites/Ant-mid-sel.png").convert_alpha()
         self.rect = self.image.get_rect()
         self.step = [self.step1,self.step2,self.step3,self.step4]
+        self.stepsel = [self.stepsel1,self.stepsel2,self.stepsel3,self.stepsel4]
         self.perso_angle = 0
         self.ticker = 0
         self.rect.x = x
@@ -119,8 +124,18 @@ class Hero(pygame.sprite.Sprite):
         self.accx = 0
 
         if self.vitessey != 0 or self.vitessex != 0:
-            self.image = self.step[self.current_frame]
-            self.perso_rotated_surf = pygame.transform.rotate(self.image, self.perso_angle)
+            if self.selectionned == False:
+                self.image = self.step[self.current_frame]
+            if self.selectionned == True:
+                self.image = self.stepsel[self.current_frame]
+        if self.vitessey == 0 and self.vitessex == 0:
+            if self.selectionned == False:
+                self.image = self.step2
+            if self.selectionned == True:
+                self.image = self.stepsel2
+
+        self.perso_rotated_surf = pygame.transform.rotate(self.image, self.perso_angle)
+
 
         self.vitessey += self.accy
         self.coordy += self.vitessey
